@@ -1,0 +1,13 @@
+
+ - create buttons on nautilus toolbar
+ - create menu items in folder's contextual menu
+
+
+
+
+
+
+
+
+
+

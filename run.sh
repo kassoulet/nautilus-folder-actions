@@ -1,4 +1,4 @@
-cp nautilus-folder-action.py ~/.nautilus/python-extensions/
-mkdir /tmp/testing
-export TMPDIR=/tmp/testing
-nautilus --no-desktop
+mkdir /tmp/nautilus-test
+cp nautilus-folder-actions.py ~/.nautilus/python-extensions/
+killall -9 nautilus
+TMPDIR=/tmp/nautilus-test nautilus --no-desktop .
