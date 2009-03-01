@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # nautilus-folder-actions by Gautier Portet <kassoulet gmail.com>
 
+__author__ = 'Gautier Portet <kassoulet gmail.com>'
+__version__ = '0.1.0'
+
 '''
 This little script for Nautilus allows you to add actions in Nautilus.
 For now, only toolbar buttons are supported.
-
-
-
 '''
 
 import os
@@ -16,7 +16,7 @@ from threading import Thread
 
 TERMINAL_KEY = '/desktop/gnome/applications/terminal/exec'
 
-print 'Initializing nautilus-folder-actions'
+print 'Initializing nautilus-folder-actions ' + __version__
 
 import gtk
 import nautilus
