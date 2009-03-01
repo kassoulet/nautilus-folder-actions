@@ -3,9 +3,18 @@
  - create menu items in folder's contextual menu
 
 
+TODO:
+ - do not block nautilus
 
 
 
+--
+
+ - run command (optionally in terminal)
+ - show a progressbar with an optional terminal like synaptic
+ - display "errors"
+   - program output (stdout and/or stderr)
+   - error extracting (+link to files if I want to be a hero...)
 
 
 

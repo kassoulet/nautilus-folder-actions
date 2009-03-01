@@ -4,25 +4,6 @@
 '''
 This little script for Nautilus allows you to add actions in Nautilus.
 For now, only toolbar buttons are supported.
---
-
- - buttons
- - menu items
- - menu background item
-
- - run command (optionnally in terminal)
- - show a progressbar with an optionnal terminal like synaptic
- - display "errors"
-   - program output (stdout and/or stderr)
-   - error extracting (+link to files if I want to be a hero...)
-
-Name
-Comment
-Icon=
-Exec=soundconverter %U
-Terminal=false
-
-nautilus folder buttons
 
 
 
@@ -31,6 +12,7 @@ nautilus folder buttons
 import os
 import sys
 import urllib
+from threading import Thread
 
 TERMINAL_KEY = '/desktop/gnome/applications/terminal/exec'
 
@@ -42,14 +24,41 @@ import gconf
 
 CONF_FILENAME = 'nautilus-folder-actions'
 
+
+class Command(Thread):
+    """
+    Launch a background command.
+    """
+
+    def __init__(self, command, folder):
+        Thread.__init__(self)
+        self.command = command
+        self.folder = folder
+    
+    def run(self):
+        os.chdir(self.folder)
+        os.system(self.command)
+
+
 class Action():
+    """
+    One action from the current folder.
+    """
     def __init__(self):
         self.name = ''
         self.icon = 'extension'
         self.command = ''
         self.comment = ''
 
+    def run(self, folder):
+        command = Command(self.command, folder)
+        command.start()
+
+
 def get_folder_actions(folder):
+    """
+    Return the list of action for the given folder.
+    """
     import ConfigParser
     config = ConfigParser.SafeConfigParser()
     filename = os.path.join(folder, CONF_FILENAME)
@@ -79,23 +88,11 @@ class NautilusBuildExtension(nautilus.MenuProvider):
     def __init__(self):
         self.client = gconf.client_get_default()
 
-    def _open_terminal(self, file, action):
-        filename = urllib.unquote(file.get_uri()[7:])
-        #terminal = self.client.get_string(TERMINAL_KEY)
-
-        os.chdir(filename)
-        #print "RUNNING:", filename, '%s --command "%s" ' % (terminal, action)
-        #os.system('%s --command %s ' % (terminal, action))
-        os.system(action)
-
-    def _menu_activate_cb(self, menu, file):
-        self._open_terminal(file)
-
-    def menu_background_activate_cb(self, menu, params):
-
+    def activate_cb(self, menu, params):
         file, action = params
         print 'click:', file.get_uri()
-        self._open_terminal(file, action)
+        folder = urllib.unquote(file.get_uri()[7:])
+        action.run(folder)
 
     def get_toolbar_items(self, window, file):
         print file.get_uri()
@@ -105,11 +102,11 @@ class NautilusBuildExtension(nautilus.MenuProvider):
 
         items = []
         for action in actions:
-            item = nautilus.MenuItem('NautilusPython::build_item',
+            item = nautilus.MenuItem('NautilusPython::folder-actions::%s' % action.name,
                                      action.name,
                                      action.comment,
                                      action.icon)
-            item.connect('activate', self.menu_background_activate_cb, [file, action.command])
+            item.connect('activate', self.activate_cb, [file, action])
             items.append(item)
 
         return items
